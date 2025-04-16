@@ -1,10 +1,10 @@
 import React from "react";
 import "./StartButton.css";
 
-function StartButton() {
+function StartButton({ startHandler }) {
   return (
     <div className="startbutton-container">
-      <button className="start-button" onClick={randomTime}>
+      <button className="start-button" onClick={startHandler}>
         Start
       </button>
     </div>
