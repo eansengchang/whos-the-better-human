@@ -1,15 +1,16 @@
 import "./App.css";
 import ReactionBox from "./components/ReactionBox";
-import StartButton from "./components/StartButton";
+import ReadyButton from "./components/ReadyButton";
 import { generateRandom } from "./utils/functions";
 import { useRef, useState, useEffect } from "react";
 
 function App() {
   const [reactionTimer, setTimer] = useState();
   const [timerTrigger, setTimerTrigger] = useState(0);
+  const [socketReady, setReady] = useState(false);
   const [isZero, setZero] = useState(false);
-  function startHandler() {
-    setTimerTrigger((prevTrigger) => prevTrigger + 1);
+  function readyHandler() {
+    setReady(true);
   }
 
   const intervalRef = useRef(null);
@@ -44,7 +45,7 @@ function App() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [timerTrigger]);
+  }, [timerTrigger, socketReady]);
 
   return (
     <div className="App">
@@ -53,7 +54,7 @@ function App() {
       </div>
       <h2>{reactionTimer}</h2>
       <ReactionBox />
-      <StartButton startHandler={startHandler} />
+      <ReadyButton readyHandler={readyHandler} />
     </div>
   );
 }
