@@ -5,12 +5,12 @@
 
 ### Back End Setup:
 
-Ensure you have python installed.
+Ensure you have npm installed
 
 1. run `cd backend`
-2. run `python -m venv venv`
-3. run `. venv/bin/activate`
-4. run `python -m pip install -r requirements.txt`
+2. run `npm i`
+3. run `npm start`
 
 
 ## API Endpoints
+`http://localhost:8000/`
