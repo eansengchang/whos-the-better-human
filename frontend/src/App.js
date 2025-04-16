@@ -3,6 +3,8 @@ import ReactionBox from "./components/ReactionBox";
 import ReadyButton from "./components/ReadyButton";
 import { generateRandom } from "./utils/functions";
 import { useRef, useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import { socket } from "./socket";
 
 function App() {
   const [reactionTimer, setTimer] = useState();
@@ -11,9 +13,16 @@ function App() {
   const [isZero, setZero] = useState(false);
   function readyHandler() {
     setReady(true);
+    socket.emit("player-ready");
+    console.log("Test");
   }
 
   const intervalRef = useRef(null);
+
+  useEffect(() => {
+    socket.connect();
+    console.log(socket);
+  }, []);
 
   useEffect(() => {
     if (timerTrigger <= 0) {

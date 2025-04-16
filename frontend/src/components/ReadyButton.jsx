@@ -1,10 +1,10 @@
 import React from "react";
 import "./ReadyButton.css";
 
-function ReadyButton({ startHandler }) {
+function ReadyButton({ readyHandler }) {
   return (
     <div className="readybutton-container">
-      <button className="ready-button" onClick={startHandler}>
+      <button className="ready-button" onClick={readyHandler}>
         Ready
       </button>
     </div>
