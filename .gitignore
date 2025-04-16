@@ -8,8 +8,22 @@
 *.swo
 *.tmp
 *.bak
+# =========================
+# Backend ignores
+# =========================
+
+backend/node_modules/
 
 # =========================
-# Python backend ignores
+# React Frontend ignores
 # =========================
-backend/node_modules/
+
+frontend/node_modules
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.vscode
+
+
