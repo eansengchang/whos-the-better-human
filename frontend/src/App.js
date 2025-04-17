@@ -3,7 +3,6 @@ import ReactionBox from "./components/ReactionBox";
 import ReadyButton from "./components/ReadyButton";
 import { generateRandom } from "./utils/functions";
 import { useRef, useState, useEffect } from "react";
-import { io } from "socket.io-client";
 import { socket } from "./socket";
 
 function App() {
