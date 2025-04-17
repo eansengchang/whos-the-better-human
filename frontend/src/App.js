@@ -7,7 +7,6 @@ import { socket } from "./socket";
 
 function App() {
   const [reactionTimer, setTimer] = useState();
-  const [socketReady, setReady] = useState(false);
   const [isZero, setZero] = useState(false);
   function readyHandler() {
     socket.emit("player-ready");
@@ -17,47 +16,36 @@ function App() {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    socket.connect();
-    console.log(socket);
-
     function onRoundStart() {
-      setReady(true);
-    }
-    socket.on("round-start", onRoundStart);
+      console.log("Timer Triggered");
 
-    return () => {
-      socket.off("round-start", onRoundStart);
-    };
-  }, []);
-
-  useEffect(() => {
-    console.log("Timer Triggered");
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    setTimer(generateRandom());
-
-    intervalRef.current = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 1) {
-          clearInterval(intervalRef.current);
-          setZero(true);
-          return 0;
-        }
-        return prevTimer - 1;
-      });
-    }, 1000);
-
-    return () => {
-      console.log("Cleaning Up");
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      setZero(false);
-    };
-  }, [socketReady]);
+
+      setTimer(generateRandom());
+
+      intervalRef.current = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            clearInterval(intervalRef.current);
+            setZero(true);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+
+      return () => {
+        console.log("Cleaning Up");
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        setZero(false);
+      };
+    }
+    socket.on("next-round", onRoundStart);
+  }, []);
 
   return (
     <div className="App">
