@@ -7,11 +7,9 @@ import { socket } from "./socket";
 
 function App() {
   const [reactionTimer, setTimer] = useState();
-  const [timerTrigger, setTimerTrigger] = useState(0);
   const [socketReady, setReady] = useState(false);
   const [isZero, setZero] = useState(false);
   function readyHandler() {
-    setReady(true);
     socket.emit("player-ready");
     console.log("Test");
   }
@@ -21,13 +19,18 @@ function App() {
   useEffect(() => {
     socket.connect();
     console.log(socket);
+
+    function onRoundStart() {
+      setReady(true);
+    }
+    socket.on("round-start", onRoundStart);
+
+    return () => {
+      socket.off("round-start", onRoundStart);
+    };
   }, []);
 
   useEffect(() => {
-    if (timerTrigger <= 0) {
-      return;
-    }
-
     console.log("Timer Triggered");
 
     if (intervalRef.current) {
@@ -52,8 +55,9 @@ function App() {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      setZero(false);
     };
-  }, [timerTrigger, socketReady]);
+  }, [socketReady]);
 
   return (
     <div className="App">
