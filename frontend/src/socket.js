@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
 
 export const socket = io("localhost:4000", {
-  autoConnect: true,
+  autoConnect: false,
 });
