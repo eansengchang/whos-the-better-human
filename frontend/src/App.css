@@ -23,3 +23,11 @@
   width: 400px;
   height: 400px;
 }
+
+.timer-containers {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  column-gap: 300px;
+}
