@@ -1,7 +1,7 @@
-const io = require('socket.io')({
+const io = require("socket.io")({
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 
@@ -11,39 +11,39 @@ let playerScores = { 0: [], 1: [] };
 let numPlayers = 0;
 let playerNumberFromId = {};
 
-io.on('connect', (socket) => {
+io.on("connect", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
   playerNumberFromId[socket.id] = numPlayers;
   numPlayers += 1;
 
-  socket.on('player-ready', () => {
+  socket.on("player-ready", () => {
     console.log(`Player ${playerNumberFromId[socket.id]} ready!`);
     playersReady += 1;
 
-    if (playersReady >= numPlayers) {
+    if (playersReady === 2) {
       currentRound += 1;
       playersReady = 0;
 
       if (currentRound > 5) {
-        console.log('Game Ended!')
-        io.emit('game-end', playerScores);
+        console.log("Game Ended!");
+        io.emit("game-end", playerScores);
       } else {
-        console.log('Moving on to next round!');
-        io.emit('next-round');
+        console.log("Moving on to next round!");
+        io.emit("next-round");
       }
     }
   });
 
-  socket.on('player-score', (score) => {
+  socket.on("player-score", (score) => {
     console.log(
       `Received Player ${playerNumberFromId[socket.id]} Score: ${score}!`
     );
     const playerNumber = playerNumberFromId[socket.id];
     playerScores[playerNumber].push(score);
-    socket.broadcast('scoreboard', playerScores);
+    io.emit("scoreboard", playerScores);
   });
 
-  socket.on('disconnect', () => {
+  socket.on("disconnect", () => {
     console.log(`Socket disconnected: ${socket.id}`);
     delete playerNumberFromId[socket.id];
     numPlayers -= 1;
