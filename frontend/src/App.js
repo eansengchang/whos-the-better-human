@@ -7,28 +7,40 @@ import { socket } from "./socket";
 
 function App() {
   const [reactionTimer, setTimer] = useState(); // Timer 1
-  const [measureTimer, setMeasureTimer] = useState("0"); // Timer 2
+  const [measureTimer, setMeasureTimer] = useState(); // Timer 2
   const [isFinished, setFinished] = useState(""); // Timer 1 Finish
-  const [playerClicked, setPlayerClicked] = useState(false); // Timer 2 Finish (case 2: Player Clicked)
   const [playerLeaderboard, setScores] = useState({
     1: [],
     2: [],
   });
+  const [roundRunning, setRoundRunning] = useState(false);
+  const [timer1Running, setTimer1Running] = useState(false);
+
   function readyHandler() {
     socket.emit("player-ready");
-    console.log("Test");
   }
 
   function clickHandler() {
     console.log("Player Clicked!");
-    if (interval2Ref.current) {
+    if (roundRunning) {
       clearInterval(interval2Ref.current);
+      setMeasureTimer();
       setFinished("");
-      setPlayerClicked(true);
+      setRoundRunning(false);
       console.log(`Player Clicked at ${measureTimer}ms`);
       socket.emit("player-score", measureTimer);
+      return;
     }
+    else {
+      if (timer1Running) { // If clicked before timer 1 finished
+        clearInterval(intervalRef.current);
+        setTimer1Running(false);
+        setTimer();
+        console.log("Player Clicked before Timer 1 Finished!");
+        socket.emit("player-score", 1000);
+      }
   }
+}
 
   // Timer 1
   const intervalRef = useRef(null);
@@ -36,6 +48,7 @@ function App() {
   function onRoundStart() {
     setFinished("");
     console.log("Timer Triggered");
+    setTimer1Running(true);
 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -44,6 +57,8 @@ function App() {
     function onTimer1Finish() {
       console.log("Timer 1 Finished: Turning Screen Red!");
       setFinished("click");
+      setRoundRunning(true);
+      setTimer1Running(false);
     }
 
     setTimer(generateRandom());
@@ -93,7 +108,8 @@ function App() {
 
     function onTimer2Finish() {
       console.log("Timer 2 Finished: Turning Screen Normal!");
-      setTimer("");
+      setFinished("");
+      setRoundRunning(false);
     }
 
     setMeasureTimer(0);
@@ -135,7 +151,7 @@ function App() {
         <h2>{reactionTimer}</h2>
         <h2>{measureTimer}</h2>
       </div>
-      <ReactionBox isTimerFinished={isFinished} clickHandler={clickHandler} />
+      <ReactionBox isTimerFinished={isFinished} clickHandler={clickHandler} timer1Running={timer1Running} />
       <h3>Player 1: {playerLeaderboard[1].join()}</h3>
       <h3>Player 2: {playerLeaderboard[2].join()}</h3>
       <ReadyButton readyHandler={readyHandler} />

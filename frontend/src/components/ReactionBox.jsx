@@ -1,7 +1,7 @@
 import React from "react";
 import "./ReactionBox.css";
 
-function ReactionBox({ isTimerFinished, clickHandler }) {
+function ReactionBox({ isTimerFinished, clickHandler, timer1Running }) {
   console.log(isTimerFinished);
   return (
     <div className="reaction-box">
