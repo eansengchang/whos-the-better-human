@@ -11,8 +11,8 @@ function App() {
   const [isFinished, setFinished] = useState(""); // Timer 1 Finish
   const [playerClicked, setPlayerClicked] = useState(false); // Timer 2 Finish (case 2: Player Clicked)
   const [playerLeaderboard, setScores] = useState({
-    0: [],
     1: [],
+    2: [],
   });
   function readyHandler() {
     socket.emit("player-ready");
@@ -69,8 +69,12 @@ function App() {
   }
   // Listener UseEffect
   useEffect(() => {
-    function onLeaderboardReceive(data) {
-      setScores(data);
+    function onLeaderboardReceive(gameState) {
+      let scores = {
+        1: gameState.players[1].score,
+        2: gameState.players[2].score,
+      };
+      setScores(scores);
     }
     socket.on("scoreboard", onLeaderboardReceive);
     socket.on("next-round", onRoundStart);
@@ -132,8 +136,8 @@ function App() {
         <h2>{measureTimer}</h2>
       </div>
       <ReactionBox isTimerFinished={isFinished} clickHandler={clickHandler} />
-      <h3>Player 1: {playerLeaderboard[0].join()}</h3>
-      <h3>Player 2: {playerLeaderboard[1].join()}</h3>
+      <h3>Player 1: {playerLeaderboard[1].join()}</h3>
+      <h3>Player 2: {playerLeaderboard[2].join()}</h3>
       <ReadyButton readyHandler={readyHandler} />
     </div>
   );
