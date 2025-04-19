@@ -8,7 +8,7 @@ import { socket } from "./socket";
 function App() {
   const [reactionTimer, setTimer] = useState(); // Timer 1
   const [measureTimer, setMeasureTimer] = useState(); // Timer 2
-  const [isFinished, setFinished] = useState(""); // Timer 1 Finish
+
   const [playerLeaderboard, setScores] = useState({
     1: [],
     2: [],
@@ -25,28 +25,28 @@ function App() {
     if (roundRunning) {
       clearInterval(interval2Ref.current);
       setMeasureTimer();
-      setFinished("");
+
       setRoundRunning(false);
       console.log(`Player Clicked at ${measureTimer}ms`);
       socket.emit("player-score", measureTimer);
       return;
-    }
-    else {
-      if (timer1Running) { // If clicked before timer 1 finished
+    } else {
+      if (timer1Running) {
+        // If clicked before timer 1 finished
         clearInterval(intervalRef.current);
         setTimer1Running(false);
         setTimer();
         console.log("Player Clicked before Timer 1 Finished!");
         socket.emit("player-score", 1000);
       }
+    }
   }
-}
 
   // Timer 1
   const intervalRef = useRef(null);
 
   function onRoundStart() {
-    setFinished("");
+    setRoundRunning(false);
     console.log("Timer Triggered");
     setTimer1Running(true);
 
@@ -56,9 +56,11 @@ function App() {
 
     function onTimer1Finish() {
       console.log("Timer 1 Finished: Turning Screen Red!");
-      setFinished("click");
+
       setRoundRunning(true);
       setTimer1Running(false);
+
+      timer2();
     }
 
     setTimer(generateRandom());
@@ -73,14 +75,6 @@ function App() {
         return prevTimer - 1;
       });
     }, 1000);
-
-    return () => {
-      console.log("Cleaning Up");
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      setFinished("");
-    };
   }
   // Listener UseEffect
   useEffect(() => {
@@ -108,7 +102,7 @@ function App() {
 
     function onTimer2Finish() {
       console.log("Timer 2 Finished: Turning Screen Normal!");
-      setFinished("");
+
       setRoundRunning(false);
     }
 
@@ -126,21 +120,7 @@ function App() {
         return prevMeasureTimer + 1;
       });
     }, 1);
-
-    return () => {
-      console.log("Cleaning Up");
-      if (interval2Ref.current) {
-        clearInterval(interval2Ref.current);
-      }
-      setFinished("");
-    };
   }
-  // Timer 2 UseEffect
-  useEffect(() => {
-    if (isFinished === "click") {
-      timer2();
-    }
-  }, [isFinished]);
 
   return (
     <div className="App">
@@ -151,7 +131,11 @@ function App() {
         <h2>{reactionTimer}</h2>
         <h2>{measureTimer}</h2>
       </div>
-      <ReactionBox isTimerFinished={isFinished} clickHandler={clickHandler} timer1Running={timer1Running} />
+      <ReactionBox
+        clickHandler={clickHandler}
+        roundRunning={roundRunning}
+        timer1Running={timer1Running}
+      />
       <h3>Player 1: {playerLeaderboard[1].join()}</h3>
       <h3>Player 2: {playerLeaderboard[2].join()}</h3>
       <ReadyButton readyHandler={readyHandler} />
