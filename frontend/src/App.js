@@ -35,6 +35,7 @@ function App() {
       if (timer1Running) {
         // If clicked before timer 1 finished
         setTimer1Running(false);
+        clearTimeout(timerTwoAFKTimeout);
 
         console.log("Player Clicked before Timer 1 Finished!");
         socket.emit("player-score", 1000);
