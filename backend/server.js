@@ -19,9 +19,9 @@ let gameState = {
     2: {
       score: [],
       isReady: false,
-    }
-  }
-}
+    },
+  },
+};
 
 const NUMBEROFROUNDS = 5;
 
@@ -34,8 +34,8 @@ io.on("connect", (socket) => {
     console.log(`Player ${playerNumberFromId[socket.id]} ready!`);
 
     //ignore players that are already ready
-    let player = gameState.players[playerNumberFromId[socket.id]]
-    
+    let player = gameState.players[playerNumberFromId[socket.id]];
+
     if (player.isReady) return;
 
     player.isReady = true;
@@ -51,13 +51,13 @@ io.on("connect", (socket) => {
       } else {
         console.log("Moving on to next round!");
 
-        //reset players ready
-        Object.keys(gameState.players).forEach((key) => {
-          gameState.players[key].isReady = false;
-        });
-
         io.emit("next-round");
       }
+
+      //reset players ready
+      Object.keys(gameState.players).forEach((key) => {
+        gameState.players[key].isReady = false;
+      });
     }
   });
 
