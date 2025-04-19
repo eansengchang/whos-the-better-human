@@ -41,6 +41,7 @@ io.on("connect", (socket) => {
     player.isReady = true;
     playersReady += 1;
 
+    // all players are ready so start the game
     if (playersReady === 2) {
       currentRound += 1;
       playersReady = 0;
