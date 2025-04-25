@@ -29,7 +29,7 @@ let newGameObj = (roomName) => {
   };
 };
 
-let newPlayeroBj = () => {
+let newPlayerObj = () => {
   return {
     score: [],
     isReady: false,
@@ -83,7 +83,10 @@ io.on("connect", (socket) => {
     }
 
     const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
     currentGame.playerNumberFromId[socket.id] = thisPlayerId
+    currentGame.players[thisPlayerId] = newPlayerObj()
+
     socket.emit("state-update", {
       playerNumber: thisPlayerId,
       state: currentGame,
@@ -101,7 +104,7 @@ io.on("connect", (socket) => {
     getGameObjFromRoom[roomName] = newGameObj(roomName);
     thisGameObj = getGameObjFromRoom[roomName];
 
-    thisGameObj.players[1] = newPlayeroBj();
+    thisGameObj.players[1] = newPlayerObj();
     thisGameObj.playerNumberFromId[socket.id] = 1;
     thisGameObj.roomName = roomName
 
@@ -133,11 +136,11 @@ io.on("connect", (socket) => {
 
       if (currentGame.state.currentRound > NUMBEROFROUNDS) {
         console.log("Game Ended!");
-        socket.to(socketRooms[socket.id]).emit("game-end", currentGame);
+        io.in(socketRooms[socket.id]).emit("game-end", currentGame);
       } else {
         console.log("Moving on to next round!");
 
-        socket.to(socketRooms[socket.id]).emit("next-round");
+        io.in(socketRooms[socket.id]).emit("next-round");
       }
 
       //reset players ready
@@ -145,7 +148,7 @@ io.on("connect", (socket) => {
         currentGame.players[key].isReady = false;
       });
     } else {
-      socket.to(socketRooms[socket.id]).emit("state-update", {
+      io.in(socketRooms[socket.id]).emit("state-update", {
         playerNumber: thisPlayerId,
         state: currentGame,
       });
