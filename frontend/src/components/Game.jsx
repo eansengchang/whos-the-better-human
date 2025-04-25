@@ -7,16 +7,6 @@ import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
 function Game() {
-  const [gameState, setGameState] = useState({
-    state: {
-      playersReady: 0,
-      currentRound: 0,
-      numPlayers: 0,
-    },
-    players: {},
-    playerNumberFromId: {},
-    roomName: roomName,
-  });
 
   const [winner, setWinner] = useState("Player 1");
   const [gameFinished, setGameFinished] = useState(false);
@@ -26,10 +16,6 @@ function Game() {
 
   const [timerTwoStartStamp, setTimerTwoStartStamp] = useState();
   const [timerTwoAFKTimeout, setTimerTwoAFKTimeout] = useState();
-
-  function stateUpdateHandler(gameState) {
-    setGameState(gameState);
-  }
 
   function readyHandler() {
     if (timer1Running || roundRunning) {
@@ -65,9 +51,8 @@ function Game() {
 
   // Listener UseEffect
   useEffect(() => {
-    socket.on("scoreboard", onLeaderboardReceive);
     socket.on("next-round", onRoundStart);
-    socket.on("game-end", onGameEnd);
+    // socket.on("game-end", onGameEnd);
   }, []);
 
   // Timer 1
@@ -110,30 +95,30 @@ function Game() {
     setTimerTwoAFKTimeout(timeoutId);
   }
 
-  // Game End
-  function onGameEnd() {
-    setGameFinished(true);
-    let player1Average = () => {
-      let player1Sum = 0;
-      playerLeaderboard[1].forEach((score) => {
-        player1Sum += score;
-      });
-      return Math.round(player1Sum / 5);
-    };
-    let player2Average = () => {
-      let player1Sum = 0;
-      playerLeaderboard[2].forEach((score) => {
-        player1Sum += score;
-      });
-      return Math.round(player1Sum / 5);
-    };
+  // Game End TODO
+  // function onGameEnd() {
+  //   setGameFinished(true);
+  //   let player1Average = () => {
+  //     let player1Sum = 0;
+  //     playerLeaderboard[1].forEach((score) => {
+  //       player1Sum += score;
+  //     });
+  //     return Math.round(player1Sum / 5);
+  //   };
+  //   let player2Average = () => {
+  //     let player1Sum = 0;
+  //     playerLeaderboard[2].forEach((score) => {
+  //       player1Sum += score;
+  //     });
+  //     return Math.round(player1Sum / 5);
+  //   };
 
-    console.log(player1Average() + " vs " + player2Average());
-    if (player2Average() < player1Average()) {
-      setWinner("Player 2");
-      return;
-    }
-  }
+  //   console.log(player1Average() + " vs " + player2Average());
+  //   if (player2Average() < player1Average()) {
+  //     setWinner("Player 2");
+  //     return;
+  //   }
+  // }
 
   return (
     <div className="Game">
@@ -146,8 +131,8 @@ function Game() {
         roundRunning={roundRunning}
         timer1Running={timer1Running}
       />
-      <h3>Player 1: {playerLeaderboard[1].join()}</h3>
-      <h3>Player 2: {playerLeaderboard[2].join()}</h3>
+      {/* <h3>Player 1: {playerLeaderboard[1].join()}</h3>
+      <h3>Player 2: {playerLeaderboard[2].join()}</h3> */}
       <ReadyButton readyHandler={readyHandler} />
     </div>
   );

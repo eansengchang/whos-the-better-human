@@ -47,7 +47,7 @@ io.on("connect", (socket) => {
 
   socket.on("player-ready", handlePlayerReady);
   socket.on("player-score", handlePlayerScore);
-  socket.on("disconnect", handleDisconnect);
+  // socket.on("disconnect", handleDisconnect);
 
   function handleJoinRoom(roomName) {
     if (!roomName) {
@@ -71,35 +71,43 @@ io.on("connect", (socket) => {
       return;
     }
 
+    console.log(`Socket joining room: ${roomName}`)
+
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
 
     //find the lowest free player id
     let thisPlayerId = 1;
-    while (getGameObjFromRoom[roomName].players[playerId] != null) {
-      playerId += 1;
+    while (getGameObjFromRoom[roomName].players[thisPlayerId] != null) {
+      thisPlayerId += 1;
     }
 
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+    currentGame.playerNumberFromId[socket.id] = thisPlayerId
     socket.emit("state-update", {
       playerNumber: thisPlayerId,
-      state: currentGame.state,
+      state: currentGame,
     });
   }
 
   function handleNewRoom() {
+    console.log("Handling new room")
     const roomName = makeid(5);
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
+
+    console.log(`Creating new room: ${roomName}`)
 
     getGameObjFromRoom[roomName] = newGameObj(roomName);
     thisGameObj = getGameObjFromRoom[roomName];
 
     thisGameObj.players[1] = newPlayeroBj();
     thisGameObj.playerNumberFromId[socket.id] = 1;
+    thisGameObj.roomName = roomName
 
     socket.emit("state-update", {
       playerNumber: 1,
-      state: currentGame.state,
+      state: thisGameObj,
     });
   }
 
@@ -139,7 +147,7 @@ io.on("connect", (socket) => {
     } else {
       socket.to(socketRooms[socket.id]).emit("state-update", {
         playerNumber: thisPlayerId,
-        state: currentGame.state,
+        state: currentGame,
       });
     }
   }
@@ -157,12 +165,15 @@ io.on("connect", (socket) => {
     io.emit("scoreboard", currentGame.state);
   }
 
-  function handleDisconnect() {
-    //  TODO FINISH
-    console.log(`Socket disconnected: ${socket.id}`);
-    delete playerNumberFromId[socket.id];
-    numPlayers -= 1;
-  }
+  // function handleDisconnect() {
+  //   console.log(`Socket disconnected: ${socket.id}`);
+  //   if (!socketRooms[socket.id]) return;
+
+  //   const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
+  //   delete currentGame.playerNumberFromId[socket.id];
+  //   currentGame.state.numPlayers -= 1;
+  // }
 });
 
 io.listen(process.env.PORT || 4000);
