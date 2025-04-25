@@ -79,7 +79,7 @@ io.on("connect", (socket) => {
     //find the lowest free player id
     let thisPlayerId = 1;
     while (getGameObjFromRoom[roomName].players[playerId] != null) {
-      playerId += 1;
+      thisPlayerId += 1;
     }
 
     const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
