@@ -7,10 +7,17 @@ import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
 function Game() {
-  const [playerLeaderboard, setScores] = useState({
-    1: [],
-    2: [],
+  const [gameState, setGameState] = useState({
+    state: {
+      playersReady: 0,
+      currentRound: 0,
+      numPlayers: 0,
+    },
+    players: {},
+    playerNumberFromId: {},
+    roomName: roomName,
   });
+
   const [winner, setWinner] = useState("Player 1");
   const [gameFinished, setGameFinished] = useState(false);
   const [roundRunning, setRoundRunning] = useState(false);
@@ -19,6 +26,10 @@ function Game() {
 
   const [timerTwoStartStamp, setTimerTwoStartStamp] = useState();
   const [timerTwoAFKTimeout, setTimerTwoAFKTimeout] = useState();
+
+  function stateUpdateHandler(gameState) {
+    setGameState(gameState);
+  }
 
   function readyHandler() {
     if (timer1Running || roundRunning) {
@@ -54,13 +65,6 @@ function Game() {
 
   // Listener UseEffect
   useEffect(() => {
-    function onLeaderboardReceive(gameState) {
-      let scores = {
-        1: gameState.players[1].score,
-        2: gameState.players[2].score,
-      };
-      setScores(scores);
-    }
     socket.on("scoreboard", onLeaderboardReceive);
     socket.on("next-round", onRoundStart);
     socket.on("game-end", onGameEnd);
