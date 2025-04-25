@@ -71,6 +71,8 @@ io.on("connect", (socket) => {
       return;
     }
 
+    console.log(`Socket joining room: ${roomName}`)
+
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
 
@@ -87,9 +89,12 @@ io.on("connect", (socket) => {
   }
 
   function handleNewRoom() {
+    console.log("Handling new room")
     const roomName = makeid(5);
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
+
+    console.log(`Creating new room: ${roomName}`)
 
     getGameObjFromRoom[roomName] = newGameObj(roomName);
     thisGameObj = getGameObjFromRoom[roomName];
@@ -158,10 +163,13 @@ io.on("connect", (socket) => {
   }
 
   function handleDisconnect() {
-    //  TODO FINISH
     console.log(`Socket disconnected: ${socket.id}`);
-    delete playerNumberFromId[socket.id];
-    numPlayers -= 1;
+    if (!socketRooms[socket.id]) return;
+
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
+    delete currentGame.playerNumberFromId[socket.id];
+    currentGame.state.numPlayers -= 1;
   }
 });
 
