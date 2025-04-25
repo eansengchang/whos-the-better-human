@@ -82,6 +82,8 @@ io.on("connect", (socket) => {
       playerId += 1;
     }
 
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
     socket.emit("state-update", {
       playerNumber: thisPlayerId,
       state: currentGame.state,
@@ -101,10 +103,11 @@ io.on("connect", (socket) => {
 
     thisGameObj.players[1] = newPlayeroBj();
     thisGameObj.playerNumberFromId[socket.id] = 1;
+    thisGameObj.roomName = roomName
 
     socket.emit("state-update", {
       playerNumber: 1,
-      state: currentGame.state,
+      state: thisGameObj.state,
     });
   }
 
