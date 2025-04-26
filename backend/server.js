@@ -133,7 +133,7 @@ io.on("connect", (socket) => {
     if (thisState.playersReady === 2) {
       thisState.currentRound += 1;
       thisState.playersReady = 0;
-
+      
       if (currentGame.state.currentRound > NUMBEROFROUNDS) {
         console.log("Game Ended!");
         io.in(socketRooms[socket.id]).emit("game-end", currentGame);
@@ -147,7 +147,8 @@ io.on("connect", (socket) => {
       Object.keys(currentGame.players).forEach((key) => {
         currentGame.players[key].isReady = false;
       });
-    } else {
+    } 
+    else {
       io.in(socketRooms[socket.id]).emit("state-update", {
         playerNumber: thisPlayerId,
         state: currentGame,

@@ -6,7 +6,7 @@ import GameOver from "./GameOver";
 import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
-function Game() {
+function Game({gameState}) {
 
   const [winner, setWinner] = useState("Player 1");
   const [gameFinished, setGameFinished] = useState(false);
@@ -125,6 +125,8 @@ function Game() {
       {gameFinished ? <GameOver winner={winner} /> : null}
       <div className="hero-title">
         <h1>WHOSTHEBETTERHUMAN</h1>
+        <h2>Ready: {gameState.state.state.playersReady = null ? 0 : gameState.state.state.playersReady}/2</h2>
+        <h2>Room Name: {gameState.state.roomName}</h2>
       </div>
       <ReactionBox
         clickHandler={clickHandler}
