@@ -123,10 +123,13 @@ function Game({gameState}) {
   return (
     <div className="Game">
       {gameFinished ? <GameOver winner={winner} /> : null}
-      <div className="hero-title">
+      <div className="nav-container">
+        <h2 className="nav-item">Room Name: {gameState.state.roomName}</h2>
         <h1>WHOSTHEBETTERHUMAN</h1>
-        <h2>Ready: {gameState.state.state.playersReady = null ? 0 : gameState.state.state.playersReady}/2</h2>
-        <h2>Room Name: {gameState.state.roomName}</h2>
+        <h2 className="nav-item">Ready: {gameState.state.state.playersReady = null ? 0 : gameState.state.state.playersReady}/2</h2>
+      </div>
+      <div className="round-container">
+        <h2 className="round-item">Round {gameState.state.state.currentRound}/5</h2>
       </div>
       <ReactionBox
         clickHandler={clickHandler}

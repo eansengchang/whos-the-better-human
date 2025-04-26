@@ -3,7 +3,7 @@ import "./HeroPage.css";
 import logoImage from "../assets/wtbh-logo.png";
 import { socket } from "../socket"; // Import the socket instance
 
-const HeroPage = () => {
+const HeroPage = ({errorMessage}) => {
 
   const [roomCode, setRoomCode] = React.useState("");
 
@@ -34,6 +34,9 @@ const HeroPage = () => {
         <button className={"heroButton"} onClick={handleJoinRoom}>
           Join Room
         </button>
+      </div>
+      <div className="errorMessage">
+        {errorMessage && <p>{errorMessage}</p>}
       </div>
     </div>
   );

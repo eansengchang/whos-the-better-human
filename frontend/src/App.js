@@ -7,7 +7,7 @@ import { socket } from "./socket"; // Import the socket instance
 function App() {
 
     const [gameState, setGameState] = useState({
-      state: {
+      state: {  
         playersReady: 0,
         currentRound: 0,
         numPlayers: 0,
@@ -17,10 +17,18 @@ function App() {
       roomName: null,
     });
 
+    const [errorMessage, setErrorMessage] = useState(null);
+
     useEffect(() => {
       socket.on("state-update", (gameState) => {
         setGameState(gameState);
         console.log("State Update Received: ", gameState);
+      });
+      socket.on("unknownCode", () => {
+        setErrorMessage("Error: Unknown Room Code!");
+      });
+      socket.on("tooManyPlayers", () => {
+        setErrorMessage("Error: Room is full!");
       });
     }, []);
 
@@ -29,7 +37,7 @@ function App() {
       {gameState.state.roomName ? 
         <Game gameState={gameState} /> // Pass the game state to the Game component
        : 
-        <HeroPage />
+        <HeroPage errorMessage={errorMessage} />
       }
     </div>
   );

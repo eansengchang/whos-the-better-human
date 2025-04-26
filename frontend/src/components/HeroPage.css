@@ -48,3 +48,12 @@
   height: 100vh;
   background-color: #d2ab99;
 }
+
+.errorMessage {
+  color: red;
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  text-align: center;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+}
