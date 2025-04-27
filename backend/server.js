@@ -190,3 +190,16 @@ io.on("connect", (socket) => {
 
 io.listen(process.env.PORT || 4000);
 console.log(`LISTENING ON: ${process.env.PORT || 4000}`);
+
+const express = require('express');
+const app = express();
+const port = 4001;
+
+app.get('/api', (req, res) => {
+  console.log('received api call...')
+  res.json({ message: 'Hello, world!' });
+});
+
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});
