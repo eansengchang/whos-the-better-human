@@ -22,7 +22,7 @@ let newGameObj = (roomName) => {
       playersReady: 0,
       currentRound: 0,
       numPlayers: 0,
-      // receivedScores: false,
+      roundFinished: false,
     },
     players: {},
     playerNumberFromId: {},
@@ -139,16 +139,9 @@ io.on("connect", (socket) => {
         playerNumber: thisPlayerId,
         game: currentGame,
       });
+      console.log("Moving on to next round!");
+      io.in(socketRooms[socket.id]).emit("next-round");
       
-      if (currentGame.state.currentRound > NUMBEROFROUNDS) {
-        console.log("Game Ended!");
-        io.in(socketRooms[socket.id]).emit("game-end", currentGame);
-      } else {
-        console.log("Moving on to next round!");
-
-        io.in(socketRooms[socket.id]).emit("next-round");
-      }
-
       //reset players ready
       Object.keys(currentGame.players).forEach((key) => {
         currentGame.players[key].isReady = false;
@@ -176,10 +169,20 @@ io.on("connect", (socket) => {
     
     if (currentGame.players[1].score.length === currentGame.players[2].score.length) {
       console.log("Both players have submitted scores!");
+      if (currentGame.state.currentRound >= NUMBEROFROUNDS) {
+        console.log("Game Over!");
+        io.in(socketRooms[socket.id]).emit("game-end", {
+          playerNumber: thisPlayerId,
+          game: currentGame,
+        });
+        return;
+      }
+      currentGame.state.roundFinished = true;
       io.in(socketRooms[socket.id]).emit("game-update", {
         playerNumber: thisPlayerId,
         game: currentGame,
       });
+      currentGame.state.roundFinished = false;
     }
   }
 

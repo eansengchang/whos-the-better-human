@@ -11,7 +11,7 @@ function App() {
         playersReady: 0,
         currentRound: 0,
         numPlayers: 0,
-        // receivedScores: false,
+        roundFinished: false,
       },
       players: {},
       playerNumberFromId: {},
@@ -34,12 +34,32 @@ function App() {
       socket.on("tooManyPlayers", () => {
         setErrorMessage("Error: Room is full!");
       });
+      socket.on("game-end", (gameEnd) => {
+        setgameObj(gameEnd.game);
+        console.log("Game Ended: ", gameEnd);
+      });
     }, []);
+
+    function handleMainMenu() {
+      setgameObj({
+        state: {  
+          playersReady: 0,
+          currentRound: 0,
+          numPlayers: 0,
+          roundFinished: false,
+        },
+        players: {},
+        playerNumberFromId: {},
+        roomName: null,
+      });
+      setPlayerNumber(null);
+      setErrorMessage(null);
+    }
 
   return (
     <div className="App">
       {gameObj.roomName ? 
-        <Game gameObj={gameObj} playerNumber={playerNumber} /> // Pass the game state to the Game component
+        <Game gameObj={gameObj} playerNumber={playerNumber} handleMainMenu={handleMainMenu} /> // Pass the game state to the Game component
        : 
         <HeroPage errorMessage={errorMessage} />
       }
