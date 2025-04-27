@@ -72,7 +72,7 @@ io.on("connect", (socket) => {
       return;
     }
 
-    console.log(`Socket joining room: ${roomName}`)
+    console.log(`Socket joining room: ${roomName}`);
 
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
@@ -85,34 +85,32 @@ io.on("connect", (socket) => {
 
     const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
 
-    currentGame.playerNumberFromId[socket.id] = thisPlayerId
-    currentGame.players[thisPlayerId] = newPlayerObj()
+    currentGame.playerNumberFromId[socket.id] = thisPlayerId;
+    currentGame.players[thisPlayerId] = newPlayerObj();
 
-    socket.emit("game-update", {
-      playerNumber: thisPlayerId,
-      game: currentGame,
-    });
+    socket.emit("player-number", thisPlayerId);
+
+    socket.emit("game-update", currentGame);
   }
 
   function handleNewRoom() {
-    console.log("Handling new room")
+    console.log("Handling new room");
     const roomName = makeid(5);
     socketRooms[socket.id] = roomName;
     socket.join(roomName);
 
-    console.log(`Creating new room: ${roomName}`)
+    console.log(`Creating new room: ${roomName}`);
 
     getGameObjFromRoom[roomName] = newGameObj(roomName);
     thisGameObj = getGameObjFromRoom[roomName];
 
     thisGameObj.players[1] = newPlayerObj();
     thisGameObj.playerNumberFromId[socket.id] = 1;
-    thisGameObj.roomName = roomName
+    thisGameObj.roomName = roomName;
 
-    socket.emit("game-update", {
-      playerNumber: 1,
-      game: thisGameObj,
-    });
+    socket.emit("player-number", 1);
+
+    socket.emit("game-update", thisGameObj);
   }
 
   function handlePlayerReady() {
@@ -135,23 +133,16 @@ io.on("connect", (socket) => {
       thisState.currentRound += 1;
       thisState.playersReady = 0;
 
-      io.in(socketRooms[socket.id]).emit("game-update", {
-        playerNumber: thisPlayerId,
-        game: currentGame,
-      });
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
       console.log("Moving on to next round!");
       io.in(socketRooms[socket.id]).emit("next-round");
-      
+
       //reset players ready
       Object.keys(currentGame.players).forEach((key) => {
         currentGame.players[key].isReady = false;
       });
-    } 
-    else {
-      io.in(socketRooms[socket.id]).emit("game-update", {
-        playerNumber: thisPlayerId,
-        game: currentGame,
-      });
+    } else {
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
     }
   }
 
@@ -166,8 +157,11 @@ io.on("connect", (socket) => {
     );
     const playerNumber = currentGame.playerNumberFromId[socket.id];
     currentGame.players[playerNumber].score.push(score);
-    
-    if (currentGame.players[1].score.length === currentGame.players[2].score.length) {
+
+    if (
+      currentGame.players[1].score.length ===
+      currentGame.players[2].score.length
+    ) {
       console.log("Both players have submitted scores!");
       if (currentGame.state.currentRound >= NUMBEROFROUNDS) {
         console.log("Game Over!");
@@ -178,10 +172,7 @@ io.on("connect", (socket) => {
         return;
       }
       currentGame.state.roundFinished = true;
-      io.in(socketRooms[socket.id]).emit("game-update", {
-        playerNumber: thisPlayerId,
-        game: currentGame,
-      });
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
       currentGame.state.roundFinished = false;
     }
   }

@@ -23,11 +23,14 @@ function App() {
     const [errorMessage, setErrorMessage] = useState(null);
 
     useEffect(() => {
-      socket.on("game-update", (gameUpdate) => {
-        setgameObj(gameUpdate.game);
-        setPlayerNumber(gameUpdate.playerNumber)
-        console.log("Game Update Received: ", gameUpdate);
+      socket.on("game-update", (gameObj) => {
+        setgameObj(gameObj);
+        console.log("Game Update Received: ", gameObj);
       });
+      socket.on("player-number",(playerNumber)=>{
+        setPlayerNumber(playerNumber)
+        console.log('received player number: ', playerNumber)
+      })
       socket.on("unknownCode", () => {
         setErrorMessage("Error: Unknown Room Code!");
       });
