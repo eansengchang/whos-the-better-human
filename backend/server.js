@@ -1,8 +1,19 @@
-const io = require("socket.io")({
+const express = require('express');
+const app = express();
+const http = require('http'); // Create raw HTTP server
+const { Server } = require('socket.io');
+
+const PORT = process.env.PORT || 4000;
+
+// Create HTTP server and wrap Express app
+const server = http.createServer(app);
+
+// Attach socket.io to the server
+const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
+    origin: "*", // allow all origins (careful for production!)
+    methods: ["GET", "POST"]
+  }
 });
 
 const { makeid } = require("./utils");
@@ -188,18 +199,11 @@ io.on("connect", (socket) => {
   // }
 });
 
-io.listen(process.env.PORT || 4000);
-console.log(`LISTENING ON: ${process.env.PORT || 4000}`);
-
-const express = require('express');
-const app = express();
-const port = process.env.PORT || 4001;
-
 app.get('/', (req, res) => {
-  console.log('api used')
+  console.log('Get request on api')
   res.send('Hello from Express + Socket.IO on Render!');
 });
 
-app.listen(port, () => {
-  console.log(`api listening at port: ${port}`);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
