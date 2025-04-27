@@ -6,24 +6,27 @@ import { socket } from "./socket"; // Import the socket instance
 
 function App() {
 
-    const [gameState, setGameState] = useState({
+    const [gameObj, setgameObj] = useState({
       state: {  
         playersReady: 0,
         currentRound: 0,
         numPlayers: 0,
-        receivedScores: false,
+        // receivedScores: false,
       },
       players: {},
       playerNumberFromId: {},
       roomName: null,
     });
 
+    const [playerNumber, setPlayerNumber] = useState(null)
+
     const [errorMessage, setErrorMessage] = useState(null);
 
     useEffect(() => {
-      socket.on("state-update", (gameState) => {
-        setGameState(gameState);
-        console.log("State Update Received: ", gameState);
+      socket.on("game-update", (gameUpdate) => {
+        setgameObj(gameUpdate.game);
+        setPlayerNumber(gameUpdate.playerNumber)
+        console.log("Game Update Received: ", gameUpdate);
       });
       socket.on("unknownCode", () => {
         setErrorMessage("Error: Unknown Room Code!");
@@ -35,8 +38,8 @@ function App() {
 
   return (
     <div className="App">
-      {gameState.state.roomName ? 
-        <Game gameState={gameState} /> // Pass the game state to the Game component
+      {gameObj.roomName ? 
+        <Game gameObj={gameObj} playerNumber={playerNumber} /> // Pass the game state to the Game component
        : 
         <HeroPage errorMessage={errorMessage} />
       }

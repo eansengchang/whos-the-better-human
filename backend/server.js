@@ -22,7 +22,7 @@ let newGameObj = (roomName) => {
       playersReady: 0,
       currentRound: 0,
       numPlayers: 0,
-      receivedScores: false,
+      // receivedScores: false,
     },
     players: {},
     playerNumberFromId: {},
@@ -88,9 +88,9 @@ io.on("connect", (socket) => {
     currentGame.playerNumberFromId[socket.id] = thisPlayerId
     currentGame.players[thisPlayerId] = newPlayerObj()
 
-    socket.emit("state-update", {
+    socket.emit("game-update", {
       playerNumber: thisPlayerId,
-      state: currentGame,
+      game: currentGame,
     });
   }
 
@@ -109,9 +109,9 @@ io.on("connect", (socket) => {
     thisGameObj.playerNumberFromId[socket.id] = 1;
     thisGameObj.roomName = roomName
 
-    socket.emit("state-update", {
+    socket.emit("game-update", {
       playerNumber: 1,
-      state: thisGameObj,
+      game: thisGameObj,
     });
   }
 
@@ -135,9 +135,9 @@ io.on("connect", (socket) => {
       thisState.currentRound += 1;
       thisState.playersReady = 0;
 
-      io.in(socketRooms[socket.id]).emit("state-update", {
+      io.in(socketRooms[socket.id]).emit("game-update", {
         playerNumber: thisPlayerId,
-        state: currentGame,
+        game: currentGame,
       });
       
       if (currentGame.state.currentRound > NUMBEROFROUNDS) {
@@ -155,9 +155,9 @@ io.on("connect", (socket) => {
       });
     } 
     else {
-      io.in(socketRooms[socket.id]).emit("state-update", {
+      io.in(socketRooms[socket.id]).emit("game-update", {
         playerNumber: thisPlayerId,
-        state: currentGame,
+        game: currentGame,
       });
     }
   }
@@ -176,12 +176,10 @@ io.on("connect", (socket) => {
     
     if (currentGame.players[1].score.length === currentGame.players[2].score.length) {
       console.log("Both players have submitted scores!");
-      currentGame.state.receivedScores = true;
-      io.in(socketRooms[socket.id]).emit("state-update", {
+      io.in(socketRooms[socket.id]).emit("game-update", {
         playerNumber: thisPlayerId,
-        state: currentGame,
+        game: currentGame,
       });
-      currentGame.state.receivedScores = false;
     }
   }
 
