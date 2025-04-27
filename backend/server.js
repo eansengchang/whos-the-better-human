@@ -193,7 +193,7 @@ console.log(`LISTENING ON: ${process.env.PORT || 4000}`);
 
 const express = require('express');
 const app = express();
-const port = 4001;
+const port = process.env.PORT || 4001;
 
 app.get('/api', (req, res) => {
   console.log('received api call...')
