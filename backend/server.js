@@ -5,77 +5,187 @@ const io = require("socket.io")({
   },
 });
 
-let playersReady = 0;
-let currentRound = 0;
-let numPlayers = 0;
-let playerNumberFromId = {};
+const { makeid } = require("./utils");
 
-let gameState = {
-  players: {
-    1: {
-      score: [],
-      isReady: false,
+// SERVER WIDE SETTINGS
+const NUMBEROFROUNDS = 5;
+
+/*
+game is a dictionary with the keys as the roomNumbers
+    state: state of the game
+    players: the dictionary of players mapped by their player numbers
+    playerNumberFromId: gets player number from socket id
+*/
+let newGameObj = (roomName) => {
+  return {
+    state: {
+      playersReady: 0,
+      currentRound: 0,
+      numPlayers: 0,
+      roundFinished: false,
     },
-    2: {
-      score: [],
-      isReady: false,
-    },
-  },
+    players: {},
+    playerNumberFromId: {},
+    roomName: roomName,
+  };
 };
 
-const NUMBEROFROUNDS = 5;
+let newPlayerObj = () => {
+  return {
+    score: [],
+    isReady: false,
+  };
+};
+
+const socketRooms = {};
+let getGameObjFromRoom = {};
 
 io.on("connect", (socket) => {
   console.log(`Socket connected: ${socket.id}`);
-  numPlayers += 1;
-  playerNumberFromId[socket.id] = numPlayers;
 
-  socket.on("player-ready", () => {
-    console.log(`Player ${playerNumberFromId[socket.id]} ready!`);
+  socket.on("join-room", handleJoinRoom);
+  socket.on("create-room", handleNewRoom);
+
+  socket.on("player-ready", handlePlayerReady);
+  socket.on("player-score", handlePlayerScore);
+  // socket.on("disconnect", handleDisconnect);
+
+  function handleJoinRoom(roomName) {
+    if (!roomName) {
+      socket.emit("unknownCode");
+      return;
+    }
+    //room is a set
+    const room = io.sockets.adapter.rooms.get(roomName);
+
+    //get the size of the room if its a thing
+    let numsockets;
+    if (room) {
+      numsockets = room.size;
+    }
+
+    if (!room || numsockets === 0) {
+      socket.emit("unknownCode");
+      return;
+    } else if (numsockets >= 2) {
+      socket.emit("tooManyPlayers");
+      return;
+    }
+
+    console.log(`Socket joining room: ${roomName}`);
+
+    socketRooms[socket.id] = roomName;
+    socket.join(roomName);
+
+    //find the lowest free player id
+    let thisPlayerId = 1;
+    while (getGameObjFromRoom[roomName].players[thisPlayerId] != null) {
+      thisPlayerId += 1;
+    }
+
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
+    currentGame.playerNumberFromId[socket.id] = thisPlayerId;
+    currentGame.players[thisPlayerId] = newPlayerObj();
+
+    socket.emit("player-number", thisPlayerId);
+
+    socket.emit("game-update", currentGame);
+  }
+
+  function handleNewRoom() {
+    console.log("Handling new room");
+    const roomName = makeid(5);
+    socketRooms[socket.id] = roomName;
+    socket.join(roomName);
+
+    console.log(`Creating new room: ${roomName}`);
+
+    getGameObjFromRoom[roomName] = newGameObj(roomName);
+    thisGameObj = getGameObjFromRoom[roomName];
+
+    thisGameObj.players[1] = newPlayerObj();
+    thisGameObj.playerNumberFromId[socket.id] = 1;
+    thisGameObj.roomName = roomName;
+
+    socket.emit("player-number", 1);
+
+    socket.emit("game-update", thisGameObj);
+  }
+
+  function handlePlayerReady() {
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+    const thisPlayerId = currentGame.playerNumberFromId[socket.id];
+    const thisState = currentGame.state;
+
+    console.log(`Room ${socketRooms[socket.id]} Player ${thisPlayerId} ready!`);
 
     //ignore players that are already ready
-    let player = gameState.players[playerNumberFromId[socket.id]];
+    let player = currentGame.players[thisPlayerId];
 
     if (player.isReady) return;
 
     player.isReady = true;
-    playersReady += 1;
+    thisState.playersReady += 1;
 
     // all players are ready so start the game
-    if (playersReady === 2) {
-      currentRound += 1;
-      playersReady = 0;
+    if (thisState.playersReady === 2) {
+      thisState.currentRound += 1;
+      thisState.playersReady = 0;
 
-      if (currentRound > NUMBEROFROUNDS) {
-        console.log("Game Ended!");
-        io.emit("game-end", gameState);
-      } else {
-        console.log("Moving on to next round!");
-
-        io.emit("next-round");
-      }
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
+      console.log("Moving on to next round!");
+      io.in(socketRooms[socket.id]).emit("next-round");
 
       //reset players ready
-      Object.keys(gameState.players).forEach((key) => {
-        gameState.players[key].isReady = false;
+      Object.keys(currentGame.players).forEach((key) => {
+        currentGame.players[key].isReady = false;
       });
+    } else {
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
     }
-  });
+  }
 
-  socket.on("player-score", (score) => {
+  function handlePlayerScore(score) {
+    const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+    const thisPlayerId = currentGame.playerNumberFromId[socket.id];
+
     console.log(
-      `Received Player ${playerNumberFromId[socket.id]} Score: ${score}!`
+      `Room ${socketRooms[socket.id]} Received Player ${
+        currentGame.playerNumberFromId[socket.id]
+      } Score: ${score}!`
     );
-    const playerNumber = playerNumberFromId[socket.id];
-    gameState.players[playerNumber].score.push(score);
-    io.emit("scoreboard", gameState);
-  });
+    const playerNumber = currentGame.playerNumberFromId[socket.id];
+    currentGame.players[playerNumber].score.push(score);
 
-  socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
-    delete playerNumberFromId[socket.id];
-    numPlayers -= 1;
-  });
+    if (
+      currentGame.players[1].score.length ===
+      currentGame.players[2].score.length
+    ) {
+      console.log("Both players have submitted scores!");
+      if (currentGame.state.currentRound >= NUMBEROFROUNDS) {
+        console.log("Game Over!");
+        io.in(socketRooms[socket.id]).emit("game-end", {
+          playerNumber: thisPlayerId,
+          game: currentGame,
+        });
+        return;
+      }
+      currentGame.state.roundFinished = true;
+      io.in(socketRooms[socket.id]).emit("game-update", currentGame);
+      currentGame.state.roundFinished = false;
+    }
+  }
+
+  // function handleDisconnect() {
+  //   console.log(`Socket disconnected: ${socket.id}`);
+  //   if (!socketRooms[socket.id]) return;
+
+  //   const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+
+  //   delete currentGame.playerNumberFromId[socket.id];
+  //   currentGame.state.numPlayers -= 1;
+  // }
 });
 
 io.listen(process.env.PORT || 4000);

@@ -1,18 +1,20 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./HeroPage.css";
 import logoImage from "../assets/wtbh-logo.png";
+import { socket } from "../socket"; // Import the socket instance
 
-const HeroPage = () => {
-  const navigate = useNavigate();
+const HeroPage = ({errorMessage}) => {
+
+  const [roomCode, setRoomCode] = React.useState("");
+
   const handleCreateRoom = () => {
     console.log("Create Room button clicked");
-    // Navigate to the game page
-    navigate("/game");
-  };
+    socket.emit("create-room"); // Calls State-update
+  }
 
   const handleJoinRoom = () => {
     console.log("Join Room button clicked");
+    socket.emit("join-room", roomCode); // Calls State-update
   };
 
   return (
@@ -27,10 +29,14 @@ const HeroPage = () => {
           type="text"
           placeholder="Enter Room Code"
           className="roomInputField"
+          onChange={(e) => setRoomCode(e.target.value)}
         />
         <button className={"heroButton"} onClick={handleJoinRoom}>
           Join Room
         </button>
+      </div>
+      <div className="errorMessage">
+        {errorMessage && <p>{errorMessage}</p>}
       </div>
     </div>
   );

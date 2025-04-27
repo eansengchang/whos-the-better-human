@@ -1,19 +1,28 @@
 .game-over-container {
-  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  z-index: 1000;
+
   display: flex;
   flex-direction: column;
-  row-gap: 2em;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100vh;
   background-color: #d2ab99;
-  animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.65, 0.52) forwards;
+  color: #000;
+  animation: fadeIn 0.5s ease-in-out;
 }
 .game-over-container h1 {
+  font-family: 'Shrikhand','Courier New', Courier, monospace;
+  font-weight: 400;
+  letter-spacing: 0.1rem;
   font-size: 48px;
+  margin-bottom: 20px;
+}
+.game-over-container h2 {
+  font-size: 36px;
   margin-bottom: 20px;
 }
 .game-over-container p {
@@ -28,4 +37,15 @@
   border: solid 2px black;
   font-size: 18px;
   cursor: pointer;
+}
+.keyframe {
+  animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

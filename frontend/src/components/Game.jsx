@@ -6,12 +6,8 @@ import GameOver from "./GameOver";
 import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
-function Game() {
-  const [playerLeaderboard, setScores] = useState({
-    1: [],
-    2: [],
-  });
-  const [winner, setWinner] = useState("Player 1");
+function Game({ gameObj, playerNumber, handleMainMenu }) {
+  const [winner, setWinner] = useState("");
   const [gameFinished, setGameFinished] = useState(false);
   const [roundRunning, setRoundRunning] = useState(false);
   const [timer1Running, setTimer1Running] = useState(false);
@@ -20,12 +16,18 @@ function Game() {
   const [timerTwoStartStamp, setTimerTwoStartStamp] = useState();
   const [timerTwoAFKTimeout, setTimerTwoAFKTimeout] = useState();
 
+  const [clickedReady, setClickedReady] = useState(false);
+
+  const gameState = gameObj.state;
+
   function readyHandler() {
+    if (clickedReady) return;
     if (timer1Running || roundRunning) {
       console.log("Player clicked ready during a round!");
       return;
     }
     socket.emit("player-ready");
+    setClickedReady(true);
   }
 
   function clickHandler() {
@@ -38,6 +40,7 @@ function Game() {
 
       console.log(`Player Clicked at ${reactionTime}ms`);
       socket.emit("player-score", reactionTime);
+      setClickedReady(false);
       return;
     } else {
       if (timer1Running) {
@@ -48,22 +51,18 @@ function Game() {
 
         console.log("Player Clicked before Timer 1 Finished!");
         socket.emit("player-score", 1000);
+        setClickedReady(false);
       }
     }
   }
 
   // Listener UseEffect
   useEffect(() => {
-    function onLeaderboardReceive(gameState) {
-      let scores = {
-        1: gameState.players[1].score,
-        2: gameState.players[2].score,
-      };
-      setScores(scores);
-    }
-    socket.on("scoreboard", onLeaderboardReceive);
     socket.on("next-round", onRoundStart);
-    socket.on("game-end", onGameEnd);
+    socket.on("game-end", (gameEndData) => {
+      console.log("Game Ended: ", gameEndData);
+      onGameEnd(gameEndData.game);
+    });
   }, []);
 
   // Timer 1
@@ -100,51 +99,83 @@ function Game() {
         console.log("Timer 2 Finished: Turning Screen Normal!");
 
         setRoundRunning(false);
+        setClickedReady(false);
       }
     }, 1000);
 
     setTimerTwoAFKTimeout(timeoutId);
   }
 
-  // Game End
-  function onGameEnd() {
+  function onGameEnd(finalGameObj) {
     setGameFinished(true);
-    let player1Average = () => {
-      let player1Sum = 0;
-      playerLeaderboard[1].forEach((score) => {
-        player1Sum += score;
-      });
-      return Math.round(player1Sum / 5);
-    };
-    let player2Average = () => {
-      let player1Sum = 0;
-      playerLeaderboard[2].forEach((score) => {
-        player1Sum += score;
-      });
-      return Math.round(player1Sum / 5);
-    };
+    function getPlayerAverage(playerNumber) {
+      let total = 0;
+      let playerScores = finalGameObj.players[playerNumber].score;
+      for (let i = 0; i < playerScores.length; i++) {
+        total += playerScores[i];
+      }
+      console.log(`Player ${playerNumber} Total: ${total}`);
+      return total / finalGameObj.state.currentRound;
+    }
 
-    console.log(player1Average() + " vs " + player2Average());
-    if (player2Average() < player1Average()) {
+    let player1Average = getPlayerAverage(1);
+    let player2Average = getPlayerAverage(2);
+    console.log(`Player 1 Average: ${player1Average}`);
+    console.log(`Player 2 Average: ${player2Average}`);
+    if (player1Average < player2Average) {
+      setWinner("Player 1");
+    } else if (player1Average > player2Average) {
       setWinner("Player 2");
-      return;
+    } else {
+      setWinner("Draw");
     }
   }
 
   return (
     <div className="Game">
-      {gameFinished ? <GameOver winner={winner} /> : null}
-      <div className="hero-title">
+      {gameFinished ? (
+        <GameOver winner={winner} handleMainMenu={handleMainMenu} />
+      ) : null}
+      <div className="nav-container">
+        {/* <h2>You are player {playerNumber}</h2> */}
+        <h2 className="nav-item">Room Name: {gameObj.roomName}</h2>
         <h1>WHOSTHEBETTERHUMAN</h1>
+        <h2 className="nav-item">
+          Ready: {gameState.playersReady == null ? 0 : gameState.playersReady}/2
+        </h2>
+      </div>
+      <div className="round-container">
+        <h2>You are player {playerNumber} </h2>
+        <h2 className="round-item">Round {gameState.currentRound}/5</h2>
       </div>
       <ReactionBox
         clickHandler={clickHandler}
         roundRunning={roundRunning}
         timer1Running={timer1Running}
       />
-      <h3>Player 1: {playerLeaderboard[1].join()}</h3>
-      <h3>Player 2: {playerLeaderboard[2].join()}</h3>
-      <ReadyButton readyHandler={readyHandler} />
+      <ReadyButton readyHandler={readyHandler} clickedReady={clickedReady} />
+      {
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Round</th>
+                <th>Player 1</th>
+                <th>Player 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: gameState.currentRound }).map((_, i) => (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{gameObj.players[1].score[i]}</td>
+                  <td>{gameObj.players[2].score[i]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
   );
 }

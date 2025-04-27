@@ -1,11 +1,11 @@
 import React from "react";
 import "./ReadyButton.css";
 
-function ReadyButton({ readyHandler }) {
+function ReadyButton({ readyHandler, clickedReady }) {
   return (
     <div className="readybutton-container">
       <button className="ready-button" onClick={readyHandler}>
-        Ready
+        {clickedReady ? "You have readied up!" : "Ready"} 
       </button>
     </div>
   );
