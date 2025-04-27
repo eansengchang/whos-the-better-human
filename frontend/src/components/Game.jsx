@@ -126,7 +126,7 @@ function Game({gameState}) {
       <div className="nav-container">
         <h2 className="nav-item">Room Name: {gameState.state.roomName}</h2>
         <h1>WHOSTHEBETTERHUMAN</h1>
-        <h2 className="nav-item">Ready: {gameState.state.state.playersReady = null ? 0 : gameState.state.state.playersReady}/2</h2>
+        <h2 className="nav-item">Ready: {gameState.state.playersReady = null ? 0 : gameState.state.state.playersReady}/2</h2>
       </div>
       <div className="round-container">
         <h2 className="round-item">Round {gameState.state.state.currentRound}/5</h2>
@@ -136,8 +136,29 @@ function Game({gameState}) {
         roundRunning={roundRunning}
         timer1Running={timer1Running}
       />
-      {/* <h3>Player 1: {playerLeaderboard[1].join()}</h3>
-      <h3>Player 2: {playerLeaderboard[2].join()}</h3> */}
+    {gameState.state.state.receivedScores ? (
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Round</th>
+              <th>Player 1</th>
+              <th>Player 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: gameState.state.state.currentRound }).map((_, i) => (
+              <tr key={i}>
+                <td>{i + 1}</td>
+                <td>{gameState.state.players[1].score[i]}</td>
+                <td>{gameState.state.players[2].score[i]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : null}
+
       <ReadyButton readyHandler={readyHandler} />
     </div>
   );

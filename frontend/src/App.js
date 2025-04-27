@@ -11,6 +11,7 @@ function App() {
         playersReady: 0,
         currentRound: 0,
         numPlayers: 0,
+        receivedScores: false,
       },
       players: {},
       playerNumberFromId: {},

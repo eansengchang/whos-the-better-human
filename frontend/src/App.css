@@ -79,3 +79,26 @@
   flex-direction: row;
 }
 
+.table-container th {
+  background-color: #d2ab99;
+  color: #000;
+  font-size: 1.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.table-container td {
+  color: #000;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow:  0 2px 5px rgba(0, 0, 0, 0.2);
+  
+}

@@ -22,6 +22,7 @@ let newGameObj = (roomName) => {
       playersReady: 0,
       currentRound: 0,
       numPlayers: 0,
+      receivedScores: false,
     },
     players: {},
     playerNumberFromId: {},
@@ -163,6 +164,7 @@ io.on("connect", (socket) => {
 
   function handlePlayerScore(score) {
     const currentGame = getGameObjFromRoom[socketRooms[socket.id]];
+    const thisPlayerId = currentGame.playerNumberFromId[socket.id];
 
     console.log(
       `Room ${socketRooms[socket.id]} Received Player ${
@@ -171,7 +173,16 @@ io.on("connect", (socket) => {
     );
     const playerNumber = currentGame.playerNumberFromId[socket.id];
     currentGame.players[playerNumber].score.push(score);
-    io.emit("scoreboard", currentGame.state);
+    
+    if (currentGame.players[1].score.length === currentGame.players[2].score.length) {
+      console.log("Both players have submitted scores!");
+      currentGame.state.receivedScores = true;
+      io.in(socketRooms[socket.id]).emit("state-update", {
+        playerNumber: thisPlayerId,
+        state: currentGame,
+      });
+      currentGame.state.receivedScores = false;
+    }
   }
 
   // function handleDisconnect() {
