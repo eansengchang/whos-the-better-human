@@ -195,11 +195,11 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 4001;
 
-app.get('/api', (req, res) => {
-  console.log('received api call...')
-  res.json({ message: 'Hello, world!' });
+app.get('/', (req, res) => {
+  console.log('api used')
+  res.send('Hello from Express + Socket.IO on Render!');
 });
 
 app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+  console.log(`api listening at port: ${port}`);
 });
