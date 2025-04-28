@@ -4,7 +4,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const PORT = process.env.PORT || 4000;
-const ALLOWED_ORIGIN = "https://whosthebetterhuman.netlify.app/";
+const ALLOWED_ORIGIN = "https://whosthebetterhuman.netlify.app";
 
 // Create HTTP server and wrap Express app
 const server = http.createServer(app);
