@@ -1,9 +1,10 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const http = require('http'); // Create raw HTTP server
-const { Server } = require('socket.io');
+const http = require("http"); 
+const { Server } = require("socket.io");
 
 const PORT = process.env.PORT || 4000;
+const ALLOWED_ORIGIN = "https://whosthebetterhuman.netlify.app/";
 
 // Create HTTP server and wrap Express app
 const server = http.createServer(app);
@@ -11,9 +12,9 @@ const server = http.createServer(app);
 // Attach socket.io to the server
 const io = new Server(server, {
   cors: {
-    origin: "*", // allow all origins (careful for production!)
-    methods: ["GET", "POST"]
-  }
+    origin: ALLOWED_ORIGIN,
+    methods: ["GET", "POST"],
+  },
 });
 
 const { makeid } = require("./utils");
@@ -26,6 +27,7 @@ game is a dictionary with the keys as the roomNumbers
     state: state of the game
     players: the dictionary of players mapped by their player numbers
     playerNumberFromId: gets player number from socket id
+    roomName: the game code
 */
 let newGameObj = (roomName) => {
   return {
@@ -199,9 +201,9 @@ io.on("connect", (socket) => {
   // }
 });
 
-app.get('/', (req, res) => {
-  console.log('Get request on api')
-  res.send('Hello from Express + Socket.IO on Render!');
+app.get("/", (req, res) => {
+  console.log("Get request on api");
+  res.send("Hello from Express + Socket.IO on Render!");
 });
 
 server.listen(PORT, () => {
