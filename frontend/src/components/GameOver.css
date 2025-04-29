@@ -15,7 +15,7 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 .game-over-container h1 {
-  font-family: 'Shrikhand','Courier New', Courier, monospace;
+  font-family: "Shrikhand", "Courier New", Courier, monospace;
   font-weight: 400;
   letter-spacing: 0.1rem;
   font-size: 48px;
@@ -33,8 +33,8 @@
   width: 200px;
   height: 50px;
   border-radius: 3rem;
-  color: black;
-  border: solid 2px black;
+  color: #0e191b;
+  border: solid 2px #0e191b;
   font-size: 18px;
   cursor: pointer;
 }

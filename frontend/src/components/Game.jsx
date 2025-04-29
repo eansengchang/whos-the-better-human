@@ -144,38 +144,47 @@ function Game({ gameObj, playerNumber, handleMainMenu }) {
           Ready: {gameState.playersReady == null ? 0 : gameState.playersReady}/2
         </h2>
       </div>
-      <div className="round-container">
-        <h2>You are player {playerNumber} </h2>
-        <h2 className="round-item">Round {gameState.currentRound}/5</h2>
-      </div>
-      <ReactionBox
-        clickHandler={clickHandler}
-        roundRunning={roundRunning}
-        timer1Running={timer1Running}
-      />
-      <ReadyButton readyHandler={readyHandler} clickedReady={clickedReady} />
-      {
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Round</th>
-                <th>Player 1</th>
-                <th>Player 2</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: gameState.currentRound }).map((_, i) => (
-                <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{gameObj.players[1].score[i]}</td>
-                  <td>{gameObj.players[2].score[i]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="game-container">
+        <div className="round-container">
+          <h2>You are player {playerNumber} </h2>
+          <h2 className="round-item">Round {gameState.currentRound}/5</h2>
         </div>
-      }
+        <ReactionBox
+          clickHandler={clickHandler}
+          roundRunning={roundRunning}
+          timer1Running={timer1Running}
+        />
+        <ReadyButton readyHandler={readyHandler} clickedReady={clickedReady} />
+      </div>
+      <div className="side-interface-container">
+        {
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Round</th>
+                  <th>Player 1</th>
+                  <th>Player 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: gameState.currentRound }).map((_, i) => (
+                  <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>{gameObj.players[1].score[i]}</td>
+                    <td>{gameObj.players[2].score[i]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        }
+        <div className="chat-container">
+          <div className="chat-box">
+            <p>Player 1 Joined.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

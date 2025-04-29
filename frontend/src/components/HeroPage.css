@@ -15,11 +15,11 @@
   font-family: "Courier New", Courier, monospace;
   font-weight: 400;
   box-shadow: -2px 6px 0px 1px rgba(0, 0, 0, 0.6);
-  background-color: #1c3235;
+  background-color: #0e191b;
 }
 .heroTitle {
   font-size: 2.5rem;
-  color: #1c3235;
+  color: #0e191b;
   text-align: center;
   font-family: "Shrikhand", "Courier New", Courier, monospace;
   font-weight: 400;
@@ -28,8 +28,8 @@
 .roomInputField {
   width: 300px;
   height: 30px;
-  color: black;
-  border: solid 2px black;
+  color: #0e191b;
+  border: solid 2px #0e191b;
   font-size: 18px;
   padding-left: 1rem;
   box-shadow: -2px 6px 0px 1px rgba(0, 0, 0, 0.6);
@@ -38,7 +38,7 @@
   width: 100px;
   height: 100px;
   margin-bottom: 1rem;
-  border: 2px dashed #1c3235;
+  border: 2px dashed #0e191b;
 }
 .heroPage {
   display: flex;
